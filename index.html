@@ -3,158 +3,179 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LaTeX Web Studio - Editor Estilo Overleaf</title>
+    <title>LaTeX Web Studio - Dashboard</title>
     <link rel="stylesheet" href="style.css">
-    <!-- FontAwesome para ícones -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
 <body class="dark-theme">
-    <!-- Barra Superior -->
-    <header class="top-nav">
-        <div class="nav-left">
+
+    <!-- ================= TELA 1: DASHBOARD (PÁGINA INICIAL) ================= -->
+    <div id="dashboard-view" class="view-container">
+        <!-- Barra Superior da Dashboard -->
+        <header class="dash-nav">
             <div class="logo">
                 <i class="fa-solid fa-square-root-variable"></i>
                 <span>LaTeX Studio</span>
             </div>
-            <div class="project-title-container">
-                <input type="text" id="project-title" value="Artigo_Cientifico_v1.tex" title="Clique para renomear">
-                <span class="save-status" id="save-status"><i class="fa-solid fa-cloud-arrow-up"></i> Salvo</span>
+            <div class="dash-user-menu">
+                <button id="theme-toggle-dash" class="btn icon-btn" title="Alternar Tema">
+                    <i class="fa-solid fa-moon" id="theme-icon-dash"></i>
+                </button>
+                <div class="user-avatar" title="José Adson"><span>JS</span></div>
             </div>
-        </div>
-        <div class="nav-center">
-            <button id="compile-btn" class="btn primary-btn">
-                <i class="fa-solid fa-play"></i> Compilar
-            </button>
-            <label class="auto-compile-label">
-                <input type="checkbox" id="auto-compile" checked> Automático
-            </label>
-        </div>
-        <div class="nav-right">
-            <button id="share-btn" class="btn secondary-btn" title="Compartilhar Projeto">
-                <i class="fa-solid fa-share-nodes"></i> Compartilhar
-            </button>
-            <button id="download-btn" class="btn secondary-btn" title="Baixar PDF">
-                <i class="fa-solid fa-download"></i> PDF
-            </button>
-            <button id="theme-toggle" class="btn icon-btn" title="Alternar Tema">
-                <i class="fa-solid fa-moon" id="theme-icon"></i>
-            </button>
-            <div class="user-avatar" title="José Adson">
-                <span>JS</span>
-            </div>
-        </div>
-    </header>
+        </header>
 
-    <!-- Área Principal -->
-    <div class="main-container">
-        <!-- Painel Esquerdo: Gerenciador de Arquivos -->
-        <aside class="file-sidebar" id="file-sidebar">
-            <div class="sidebar-header">
-                <h3>Arquivos do Projeto</h3>
-                <div class="sidebar-actions">
-                    <button title="Novo Arquivo" id="new-file-btn"><i class="fa-solid fa-file-circle-plus"></i></button>
-                    <button title="Atualizar Lista" id="refresh-files-btn"><i class="fa-solid fa-rotate"></i></button>
+        <!-- Conteúdo Principal da Dashboard -->
+        <main class="dash-main">
+            <div class="dash-header-section">
+                <div class="dash-title-area">
+                    <h1>Seus Projetos LaTeX</h1>
+                    <p>Gerencie, edite e compartilhe seus documentos e artigos científicos.</p>
                 </div>
+                <button id="new-project-btn" class="btn primary-btn btn-lg">
+                    <i class="fa-solid fa-plus"></i> Novo Projeto
+                </button>
             </div>
-            <ul class="file-list" id="file-list">
-                <li class="file-item active" data-file="main.tex"><i class="fa-solid fa-file-code"></i> main.tex</li>
-                <li class="file-item" data-file="references.bib"><i class="fa-solid fa-book"></i> references.bib</li>
-                <li class="file-item" data-file="appendices.tex"><i class="fa-solid fa-file-lines"></i> appendices.tex</li>
-            </ul>
-        </aside>
 
-        <!-- Editor de Código -->
-        <section class="editor-section">
-            <div class="editor-tabs">
-                <div class="tab active" data-file="main.tex">
-                    <i class="fa-solid fa-file-code"></i> main.tex <span class="close-tab">&times;</span>
+            <!-- Barra de Pesquisa e Filtros -->
+            <div class="dash-toolbar">
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" id="search-project" placeholder="Buscar projetos...">
+                </div>
+                <div class="filter-options">
+                    <button class="filter-btn active">Todos</button>
+                    <button class="filter-btn">Favoritos</button>
+                    <button class="filter-btn">Compartilhados</button>
                 </div>
             </div>
-            <div class="editor-wrapper">
-                <div class="line-numbers" id="line-numbers">1</div>
-                <textarea id="code-editor" spellcheck="false" placeholder="Digite seu código LaTeX aqui..."></textarea>
-            </div>
-            <!-- Painel de Logs / Console -->
-            <div class="console-panel" id="console-panel">
-                <div class="console-header">
-                    <span><i class="fa-solid fa-terminal"></i> Logs de Compilação & TeX Output</span>
-                    <button id="toggle-console"><i class="fa-solid fa-chevron-down"></i></button>
-                </div>
-                <div class="console-body" id="console-logs">
-                    [0.000s] Sistema inicializado com sucesso.<br>
-                    [0.100s] Motor PDFLaTeX pronto na nuvem simulada.<br>
-                    [0.250s] Projeto carregado: main.tex
-                </div>
-            </div>
-        </section>
 
-        <!-- Painel Direito: Preview do PDF -->
-        <section class="preview-section">
-            <div class="preview-toolbar">
-                <div class="zoom-controls">
-                    <button id="zoom-out" title="Diminuir Zoom"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
-                    <span id="zoom-level">100%</span>
-                    <button id="zoom-in" title="Aumentar Zoom"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
-                </div>
-                <div class="page-controls">
-                    <span>Página <strong id="current-page">1</strong> de <strong id="total-pages">1</strong></span>
-                </div>
-                <div class="preview-actions">
-                    <button id="refresh-preview" title="Atualizar Preview"><i class="fa-solid fa-rotate-right"></i></button>
-                    <button id="fullscreen-preview" title="Tela Cheia"><i class="fa-solid fa-expand"></i></button>
+            <!-- Grade de Projetos -->
+            <div class="projects-grid" id="projects-grid">
+                <!-- Os cards dos projetos serão injetados via JavaScript -->
+            </div>
+        </main>
+    </div>
+
+    <!-- ================= TELA 2: EDITOR DE TEXTO ================= -->
+    <div id="editor-view" class="view-container" style="display: none;">
+        <!-- Barra Superior do Editor -->
+        <header class="top-nav">
+            <div class="nav-left">
+                <button id="back-to-dash" class="btn secondary-btn" title="Voltar aos Projetos">
+                    <i class="fa-solid fa-arrow-left"></i> Meus Projetos
+                </button>
+                <div class="project-title-container">
+                    <input type="text" id="project-title" value="Artigo_Cientifico_v1.tex" title="Clique para renomear">
+                    <span class="save-status" id="save-status"><i class="fa-solid fa-cloud-arrow-up"></i> Salvo</span>
                 </div>
             </div>
-            <div class="preview-viewport" id="preview-viewport">
-                <div class="pdf-page-simulated" id="pdf-render-area">
-                    <!-- Conteúdo renderizado do PDF simulado -->
-                    <div class="pdf-header-sim">
-                        <h1>Universidade Estadual - UEMA/UNICAMP</h1>
-                        <h2>Relatório de Pesquisa em Matemática Aplicada</h2>
-                        <hr>
+            <div class="nav-center">
+                <button id="compile-btn" class="btn primary-btn">
+                    <i class="fa-solid fa-play"></i> Compilar
+                </button>
+                <label class="auto-compile-label">
+                    <input type="checkbox" id="auto-compile" checked> Automático
+                </label>
+            </div>
+            <div class="nav-right">
+                <button id="share-btn" class="btn secondary-btn" title="Compartilhar Projeto">
+                    <i class="fa-solid fa-share-nodes"></i> Compartilhar
+                </button>
+                <button id="download-btn" class="btn secondary-btn" title="Baixar PDF">
+                    <i class="fa-solid fa-download"></i> PDF
+                </button>
+                <button id="theme-toggle" class="btn icon-btn" title="Alternar Tema">
+                    <i class="fa-solid fa-moon" id="theme-icon"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Área Principal do Editor -->
+        <div class="main-container">
+            <!-- Painel Esquerdo: Gerenciador de Arquivos -->
+            <aside class="file-sidebar" id="file-sidebar">
+                <div class="sidebar-header">
+                    <h3>Arquivos</h3>
+                    <div class="sidebar-actions">
+                        <button title="Novo Arquivo" id="new-file-btn"><i class="fa-solid fa-file-circle-plus"></i></button>
                     </div>
-                    <div class="pdf-body-sim">
-                        <h3>1. Introdução</h3>
-                        <p>Este documento foi compilado utilizando o ambiente LaTeX Web Studio. A equação fundamental da difusão ou calor é dada por:</p>
-                        <div class="math-eq">
-                            $$\frac{\partial u}{\partial t} = \alpha \left( \frac{\partial^2 u}{\partial x^2} + \frac{\partial^2 u}{\partial y^2} \right)$$
+                </div>
+                <ul class="file-list" id="file-list">
+                    <li class="file-item active" data-file="main.tex"><i class="fa-solid fa-file-code"></i> main.tex</li>
+                </ul>
+            </aside>
+
+            <!-- Editor de Código -->
+            <section class="editor-section">
+                <div class="editor-tabs">
+                    <div class="tab active" data-file="main.tex">
+                        <i class="fa-solid fa-file-code"></i> main.tex
+                    </div>
+                </div>
+                <div class="editor-wrapper">
+                    <div class="line-numbers" id="line-numbers">1</div>
+                    <textarea id="code-editor" spellcheck="false" placeholder="Digite seu código LaTeX aqui..."></textarea>
+                </div>
+                <!-- Console de Logs -->
+                <div class="console-panel" id="console-panel">
+                    <div class="console-header">
+                        <span><i class="fa-solid fa-terminal"></i> Logs de Compilação & TeX Output</span>
+                    </div>
+                    <div class="console-body" id="console-logs">
+                        [0.000s] Sistema inicializado.<br>
+                        [0.100s] Motor PDFLaTeX pronto.
+                    </div>
+                </div>
+            </section>
+
+            <!-- Painel Direito: Preview do PDF -->
+            <section class="preview-section">
+                <div class="preview-toolbar">
+                    <div class="zoom-controls">
+                        <button id="zoom-out"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+                        <span id="zoom-level">100%</span>
+                        <button id="zoom-in"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+                    </div>
+                    <div class="page-controls">
+                        <span>Página <strong>1</strong> de <strong>1</strong></span>
+                    </div>
+                </div>
+                <div class="preview-viewport">
+                    <div class="pdf-page-simulated" id="pdf-render-area">
+                        <div class="pdf-header-sim">
+                            <h1>LaTeX Web Studio - Preview</h1>
+                            <h2 id="pdf-preview-title">Relatório de Pesquisa</h2>
+                            <hr>
                         </div>
-                        <p>Abaixo temos um exemplo de tabela estilizada com <code>tcolorbox</code> e pacotes avançados:</p>
-                        <table class="pdf-table">
-                            <thead>
-                                <tr><th>Método</th><th>Erro Relativo</th><th>Tempo (s)</th></tr>
-                            </thead>
-                            <tbody>
-                                <tr><td>Diferenças Finitas</td><td>$1.42 \times 10^{-4}$</td><td>0.12</td></tr>
-                                <tr><td>Elementos Finitos</td><td>$8.91 \times 10^{-6}$</td><td>0.45</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="pdf-footer-sim">
-                        <span>Página 1 de 1</span>
+                        <div class="pdf-body-sim" id="pdf-preview-content">
+                            <p>Modifique o código à esquerda para atualizar o documento em tempo real.</p>
+                            <div class="math-eq">
+                                $$\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}$$
+                            </div>
+                        </div>
+                        <div class="pdf-footer-sim">
+                            <span>Página 1 de 1</span>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
+        </div>
     </div>
 
     <!-- Modal de Compartilhamento -->
     <div class="modal-overlay" id="share-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3><i class="fa-solid fa-share-nodes"></i> Compartilhar Projeto LaTeX</h3>
+                <h3><i class="fa-solid fa-share-nodes"></i> Compartilhar Projeto</h3>
                 <button class="close-modal" id="close-share-modal">&times;</button>
             </div>
             <div class="modal-body">
-                <p>Qualquer pessoa com este link poderá visualizar e editar este documento em tempo real:</p>
+                <p>Qualquer pessoa com este link poderá visualizar e colaborar:</p>
                 <div class="share-link-box">
-                    <input type="text" id="share-link-input" value="https://latex-studio.web.app/project/edit?id=proj_98a72b1e" readonly>
+                    <input type="text" id="share-link-input" value="https://latex-studio.web.app/project/edit?id=proj_demo" readonly>
                     <button id="copy-link-btn" class="btn primary-btn">Copiar</button>
-                </div>
-                <div class="access-options">
-                    <label><input type="radio" name="access" checked> Leitura e Edição (Colaborador)</label>
-                    <label><input type="radio" name="access"> Apenas Leitura</label>
                 </div>
             </div>
         </div>
