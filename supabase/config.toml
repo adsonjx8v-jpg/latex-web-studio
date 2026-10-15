@@ -1,0 +1,4 @@
+project_id = "lumatex"
+
+[functions.invite-collaborator]
+verify_jwt = true
