@@ -1,0 +1,1 @@
+O WASM real é buscado de https://texlyre.github.io/texlyre-busytex/core/busytex/busytex.wasm pelo service worker busytex-sw.js. Este arquivo é apenas uma instrução pequena para permitir o envio pelo GitHub.
