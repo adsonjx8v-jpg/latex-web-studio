@@ -3,42 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LaTeX Web Studio - Dashboard</title>
+    <title>LaTeX Web Studio - Com Integração Google Drive</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Google Identity Services Script -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://apis.google.com/js/api.js" async defer></script>
 </head>
 <body class="dark-theme">
 
-    <!-- ================= TELA 1: DASHBOARD (PÁGINA INICIAL) ================= -->
+    <!-- ================= TELA 1: DASHBOARD ================= -->
     <div id="dashboard-view" class="view-container">
-        <!-- Barra Superior da Dashboard -->
         <header class="dash-nav">
             <div class="logo">
                 <i class="fa-solid fa-square-root-variable"></i>
                 <span>LaTeX Studio</span>
             </div>
             <div class="dash-user-menu">
+                <button id="google-auth-btn" class="btn google-btn">
+                    <i class="fa-brands fa-google"></i> <span id="auth-btn-text">Conectar Google Drive</span>
+                </button>
                 <button id="theme-toggle-dash" class="btn icon-btn" title="Alternar Tema">
                     <i class="fa-solid fa-moon" id="theme-icon-dash"></i>
                 </button>
-                <div class="user-avatar" title="José Adson"><span>JS</span></div>
+                <div class="user-avatar" id="user-avatar-initials" title="Usuário"><span>JS</span></div>
             </div>
         </header>
 
-        <!-- Conteúdo Principal da Dashboard -->
         <main class="dash-main">
             <div class="dash-header-section">
                 <div class="dash-title-area">
                     <h1>Seus Projetos LaTeX</h1>
-                    <p>Gerencie, edite e compartilhe seus documentos e artigos científicos.</p>
+                    <p>Crie documentos, edite em tempo real e sincronize com o seu Google Drive.</p>
                 </div>
-                <button id="new-project-btn" class="btn primary-btn btn-lg">
-                    <i class="fa-solid fa-plus"></i> Novo Projeto
-                </button>
+                <div class="dash-actions-group">
+                    <button id="new-project-btn" class="btn primary-btn btn-lg">
+                        <i class="fa-solid fa-plus"></i> Novo Projeto
+                    </button>
+                    <button id="sync-drive-btn" class="btn secondary-btn btn-lg" style="display: none;">
+                        <i class="fa-brands fa-google-drive"></i> Sincronizar Drive
+                    </button>
+                </div>
             </div>
 
-            <!-- Barra de Pesquisa e Filtros -->
             <div class="dash-toolbar">
                 <div class="search-box">
                     <i class="fa-solid fa-magnifying-glass"></i>
@@ -46,28 +54,26 @@
                 </div>
                 <div class="filter-options">
                     <button class="filter-btn active">Todos</button>
-                    <button class="filter-btn">Favoritos</button>
-                    <button class="filter-btn">Compartilhados</button>
+                    <button class="filter-btn">Locais</button>
+                    <button class="filter-btn">Google Drive</button>
                 </div>
             </div>
 
-            <!-- Grade de Projetos -->
             <div class="projects-grid" id="projects-grid">
-                <!-- Os cards dos projetos serão injetados via JavaScript -->
+                <!-- Cards injetados via JS -->
             </div>
         </main>
     </div>
 
     <!-- ================= TELA 2: EDITOR DE TEXTO ================= -->
     <div id="editor-view" class="view-container" style="display: none;">
-        <!-- Barra Superior do Editor -->
         <header class="top-nav">
             <div class="nav-left">
                 <button id="back-to-dash" class="btn secondary-btn" title="Voltar aos Projetos">
                     <i class="fa-solid fa-arrow-left"></i> Meus Projetos
                 </button>
                 <div class="project-title-container">
-                    <input type="text" id="project-title" value="Artigo_Cientifico_v1.tex" title="Clique para renomear">
+                    <input type="text" id="project-title" value="Artigo.tex" title="Clique para renomear">
                     <span class="save-status" id="save-status"><i class="fa-solid fa-cloud-arrow-up"></i> Salvo</span>
                 </div>
             </div>
@@ -80,11 +86,11 @@
                 </label>
             </div>
             <div class="nav-right">
-                <button id="share-btn" class="btn secondary-btn" title="Compartilhar Projeto">
-                    <i class="fa-solid fa-share-nodes"></i> Compartilhar
+                <button id="save-drive-single-btn" class="btn secondary-btn" title="Salvar no Google Drive">
+                    <i class="fa-brands fa-google-drive"></i> Salvar no Drive
                 </button>
-                <button id="download-btn" class="btn secondary-btn" title="Baixar PDF">
-                    <i class="fa-solid fa-download"></i> PDF
+                <button id="download-btn" class="btn secondary-btn" title="Baixar .tex / PDF">
+                    <i class="fa-solid fa-download"></i> Baixar
                 </button>
                 <button id="theme-toggle" class="btn icon-btn" title="Alternar Tema">
                     <i class="fa-solid fa-moon" id="theme-icon"></i>
@@ -92,9 +98,7 @@
             </div>
         </header>
 
-        <!-- Área Principal do Editor -->
         <div class="main-container">
-            <!-- Painel Esquerdo: Gerenciador de Arquivos -->
             <aside class="file-sidebar" id="file-sidebar">
                 <div class="sidebar-header">
                     <h3>Arquivos</h3>
@@ -107,7 +111,6 @@
                 </ul>
             </aside>
 
-            <!-- Editor de Código -->
             <section class="editor-section">
                 <div class="editor-tabs">
                     <div class="tab active" data-file="main.tex">
@@ -118,7 +121,6 @@
                     <div class="line-numbers" id="line-numbers">1</div>
                     <textarea id="code-editor" spellcheck="false" placeholder="Digite seu código LaTeX aqui..."></textarea>
                 </div>
-                <!-- Console de Logs -->
                 <div class="console-panel" id="console-panel">
                     <div class="console-header">
                         <span><i class="fa-solid fa-terminal"></i> Logs de Compilação & TeX Output</span>
@@ -130,7 +132,6 @@
                 </div>
             </section>
 
-            <!-- Painel Direito: Preview do PDF -->
             <section class="preview-section">
                 <div class="preview-toolbar">
                     <div class="zoom-controls">
@@ -146,13 +147,13 @@
                     <div class="pdf-page-simulated" id="pdf-render-area">
                         <div class="pdf-header-sim">
                             <h1>LaTeX Web Studio - Preview</h1>
-                            <h2 id="pdf-preview-title">Relatório de Pesquisa</h2>
+                            <h2 id="pdf-preview-title">Documento LaTeX</h2>
                             <hr>
                         </div>
                         <div class="pdf-body-sim" id="pdf-preview-content">
-                            <p>Modifique o código à esquerda para atualizar o documento em tempo real.</p>
+                            <p>Modifique o código à esquerda para atualizar o documento.</p>
                             <div class="math-eq">
-                                $$\int_{-\infty}^{\infty} e^{-x^2} dx = \sqrt{\pi}$$
+                                $$\sum_{n=1}^{\infty} \frac{1}{n^2} = \frac{\pi^2}{6}$$
                             </div>
                         </div>
                         <div class="pdf-footer-sim">
@@ -164,19 +165,26 @@
         </div>
     </div>
 
-    <!-- Modal de Compartilhamento -->
-    <div class="modal-overlay" id="share-modal">
+    <!-- Modal de Novo Projeto / Template -->
+    <div class="modal-overlay" id="new-project-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3><i class="fa-solid fa-share-nodes"></i> Compartilhar Projeto</h3>
-                <button class="close-modal" id="close-share-modal">&times;</button>
+                <h3><i class="fa-solid fa-file-circle-plus"></i> Criar Novo Projeto LaTeX</h3>
+                <button class="close-modal" id="close-modal-btn">&times;</button>
             </div>
             <div class="modal-body">
-                <p>Qualquer pessoa com este link poderá visualizar e colaborar:</p>
-                <div class="share-link-box">
-                    <input type="text" id="share-link-input" value="https://latex-studio.web.app/project/edit?id=proj_demo" readonly>
-                    <button id="copy-link-btn" class="btn primary-btn">Copiar</button>
-                </div>
+                <label>Nome do Projeto (.tex):</label>
+                <input type="text" id="new-proj-name" value="Meu_Artigo.tex" class="modal-input">
+                
+                <label style="margin-top: 10px;">Escolha um Modelo (Template):</label>
+                <select id="new-proj-template" class="modal-input">
+                    <option value="article">Artigo Científico Padrão (Article)</option>
+                    <option value="exam">Lista de Exercícios / Prova (Exam)</option>
+                    <option value="beamer">Apresentação de Slides (Beamer)</option>
+                    <option value="empty">Documento em Branco</option>
+                </select>
+
+                <button id="confirm-create-btn" class="btn primary-btn" style="margin-top: 15px; width: 100%; justify-content: center;">Criar Projeto</button>
             </div>
         </div>
     </div>
