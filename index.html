@@ -448,6 +448,7 @@ Comece a escrever aqui.
       })().catch(error=>{latexEnginePromise=null;throw error});
       return latexEnginePromise;
     }
+        function prepareLatexSource(source){const pgfplotsCompatAdjusted=source.includes('pgfplotsset')&&/compat\s*=\s*1\.18/.test(source),compilerSource=pgfplotsCompatAdjusted?source.replace(/(compat\s*=\s*)1\.18\b/g,(_,prefix)=>prefix+'1.17'):source;return{source:compilerSource,pgfplotsCompatAdjusted}}
     function compiledFileBase(title){return(title||'documento').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9_-]+/g,'-').replace(/^-+|-+$/g,'')||'documento'}
     function downloadCompiledPdf(){if(!compiledPdfUrl)return;const a=document.createElement('a');a.href=compiledPdfUrl;a.download=compiledFileBase($('#editor-title').textContent)+'.pdf';document.body.appendChild(a);a.click();a.remove()}
     async function compileCurrentDocument(){
@@ -461,7 +462,7 @@ Comece a escrever aqui.
         const source=d?d.content:$('#source').value,bibliography=d?.bibliography||'';
         updatePreview(source);
         const engine=await ensureLatexEngine();
-        engine.setEngineMainFile('main.tex');engine.writeMemFSFile('main.tex',source);
+        const compilerInput=prepareLatexSource(source);engine.setEngineMainFile('main.tex');engine.writeMemFSFile('main.tex',compilerInput.source);
         if(bibliography)engine.writeMemFSFile('referencias.bib',bibliography);
         button.textContent='Compilando PDF…';
         const started=Date.now(),compileTimer=setInterval(()=>{const seconds=Math.floor((Date.now()-started)/1000);$('#preview-status').textContent='Compilando LaTeX e carregando os pacotes usados… '+seconds+' s';},1000);
@@ -471,7 +472,7 @@ Comece a escrever aqui.
           if(result.status===0&&/Rerun to get|Rerun LaTeX|Please rerun|Label\(s\) may have changed|No file [^\s]+\.(aux|toc|lof|lot)/.test(result.log||''))result=await withTimeout(engine.compileLaTeX(),240000,'A segunda passagem LaTeX passou de 4 minutos. Confira o log e tente novamente.');
         }catch(error){if(String(error?.message||'').includes('4 minutos')){engine.closeWorker();latexEngine=null;latexEnginePromise=null}throw error}finally{clearInterval(compileTimer)}
         if(result.status!==0||!result.pdf){
-          $('#compile-log').textContent=result.log||'O compilador terminou sem gerar um PDF. Confira o preâmbulo e os pacotes.';
+          $('#compile-log').textContent=(result.log||'O compilador terminou sem gerar um PDF. Confira o preâmbulo e os pacotes.')+(compilerInput.pgfplotsCompatAdjusted?' | LumaTex: compat=1.18 foi ajustado para 1.17 nesta compilação.':'');
           $('#compile-details').hidden=false;showLivePreview();
           $('#preview-status').textContent='Falha na compilação LaTeX. Abra “Ver log da compilação” para localizar o erro.';
           showToast('Não foi possível compilar. Consulte o log na pré-visualização.');return;
@@ -480,7 +481,7 @@ Comece a escrever aqui.
         compiledPdfUrl=URL.createObjectURL(new Blob([result.pdf],{type:'application/pdf'}));
         $('#download-pdf').disabled=false;$('#open-pdf').disabled=false;
         $('#pdf-preview').src=compiledPdfUrl;$('#preview-scroll').classList.add('pdf-mode');
-        $('#compile-log').textContent=result.log||'Compilado sem mensagens.';$('#compile-details').hidden=false;
+        $('#compile-log').textContent=(result.log||'Compilado sem mensagens.')+(compilerInput.pgfplotsCompatAdjusted?' | LumaTex: compat=1.18 foi ajustado para 1.17 nesta compilação.':'');$('#compile-details').hidden=false;
         $('#preview-page').textContent='PDF compilado';$('#preview-status').textContent='Compilação LaTeX concluída.';
         showToast('PDF compilado. Use “Baixar PDF” para salvar o arquivo.');
       }catch(error){const message=error?.message||'Erro ao iniciar o compilador LaTeX.';$('#compile-log').textContent=message;$('#compile-details').hidden=false;showLivePreview();$('#preview-status').textContent='Não foi possível concluir a compilação.';showToast(message);console.error(error);}
