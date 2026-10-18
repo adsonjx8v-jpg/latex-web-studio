@@ -59,6 +59,7 @@
           <div class="section-head"><div><h2>Comece com um modelo</h2><p>Uma estrutura pronta para você ganhar tempo.</p></div><button class="text-link" id="all-templates">Explorar modelos</button></div>
           <div class="template-grid">
             <button class="template" data-template="article"><span class="template-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 3.5h10l4 4V20a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1zM15 4v4h4M8 12h8M8 16h8"/></svg></span><strong>Artigo acadêmico</strong><small>Pesquisa e publicação</small></button>
+            <button class="template" data-template="math"><span class="template-icon" style="background:#eef4ff;color:#4f83c4">∑</span><strong>Artigo matemático</strong><small>TikZ, PGFPlots e teoremas</small></button>
             <button class="template" data-template="thesis"><span class="template-icon" style="background:#e9f7f2;color:#36a77d"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9.5 12 5l9 4.5-9 4.5zM6.5 11.5v5c3.4 2.5 7.6 2.5 11 0v-5M21 9.5v6"/></svg></span><strong>Monografia</strong><small>TCC, dissertação e tese</small></button>
             <button class="template" data-template="notes"><span class="template-icon" style="background:#fff5e7;color:#d99b35"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/></svg></span><strong>Anotações</strong><small>Organize suas ideias</small></button>
             <button class="template" data-template="blank"><span class="template-icon" style="background:#eef4ff;color:#5a85cb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 5v14M5 12h14"/></svg></span><strong>Documento em branco</strong><small>Comece do seu jeito</small></button>
@@ -112,6 +113,90 @@ As próximas etapas incluem ampliar a amostra e aprofundar a análise dos result
 \nocite{*}
 \bibliographystyle{plain}
 \bibliography{referencias}
+\end{document}`;
+    const mathArticle = String.raw`\documentclass[11pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[brazil]{babel}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[margin=2.2cm,headheight=15pt]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{xcolor}
+\usepackage{booktabs,tabularx}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usepackage{fancyhdr}
+\usepackage{float}
+\usepackage{tcolorbox}
+\usepackage{amsthm}
+\usepackage{hyperref}
+\pgfplotsset{compat=1.18}
+\usetikzlibrary{arrows.meta}
+\theoremstyle{definition}
+\newtheorem{exemplo}{EXEMPLO}
+\newtheorem{definicao}{DEFINIÇÃO}
+\newtheorem{proposicao}{PROPOSIÇÃO}
+
+\definecolor{azul}{HTML}{15324F}
+\definecolor{suave}{HTML}{EDF3F8}
+\hypersetup{colorlinks=true,linkcolor=azul,urlcolor=blue}
+\setlist[enumerate]{leftmargin=*,itemsep=4pt,topsep=4pt}
+\setlist[itemize]{leftmargin=*,itemsep=2pt,topsep=3pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small CÁLCULO DIFERENCIAL}
+\fancyhead[R]{\small Material de apoio}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+
+\title{Material de apoio: funções e gráficos}
+\author{Adson}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Exemplo e definição}
+\begin{exemplo}
+Para $y=4^2$, temos $y=16$.
+\end{exemplo}
+
+\begin{definicao}
+Uma função associa cada elemento do domínio a um único elemento do contradomínio.
+\end{definicao}
+
+\begin{proposicao}
+Se $f(x)=x^2$, então $f(4)=16$.
+\end{proposicao}
+
+\section{Equação e lista}
+\begin{equation}
+  f(x)=x^2
+\end{equation}
+\begin{enumerate}
+  \item Substitua $x$ por $4$.
+  \item Calcule $4^2=16$.
+\end{enumerate}
+
+\section{Gráfico com TikZ e PGFPlots}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\begin{axis}[axis lines=middle,grid=major,xlabel={$x$},ylabel={$y$},domain=-3:3,samples=80]
+  \addplot[blue,thick]{x^2};
+\end{axis}
+\end{tikzpicture}
+\caption{Gráfico da função $y=x^2$.}
+\end{figure}
+
+\begin{tcolorbox}[colback=suave,colframe=azul,title=Observação]
+Edite este exemplo e compile para gerar o PDF com os pacotes do modelo.
+\end{tcolorbox}
+
 \end{document}`;
     const thesisText = String.raw`\documentclass[12pt]{report}
 \usepackage[utf8]{inputenc}
@@ -283,7 +368,7 @@ Comece a escrever aqui.
       subscribeDocument(id);if(d.permission!=='viewer')$('#source').focus()
     }
     async function createDoc(kind='blank',name){
-      const map={article:['Artigo acadêmico',starterArticle,'purple'],thesis:['Monografia',thesisText,'green'],notes:['Anotações',notesText,'blue'],blank:['Novo documento',blankText,'purple']};let [type,content,color]=map[kind]||map.blank;const title=name||type;content=content.replace(/\\title\{[^}]*\}/,'\\title{'+title+'}');
+      const map={article:['Artigo acadêmico',starterArticle,'purple'],math:['Artigo matemático',mathArticle,'blue'],thesis:['Monografia',thesisText,'green'],notes:['Anotações',notesText,'blue'],blank:['Novo documento',blankText,'purple']};let [type,content,color]=map[kind]||map.blank;const title=name||type;content=content.replace(/\\title\{[^}]*\}/,'\\title{'+title+'}');
       const d={id:crypto.randomUUID(),title,type,updated:'Salvando…',content,bibliography:starterBibliography,color,favorite:false,permission:'owner',shared:[]};
       const {error}=await supabaseClient.from('documents').insert({id:d.id,owner_id:currentUser.id,title:d.title,type:d.type,content:d.content,bibliography:d.bibliography,color:d.color,favorite:false});
       if(error){showToast('Não foi possível criar o documento. Confira sua conexão.');console.error(error);return}
@@ -291,7 +376,7 @@ Comece a escrever aqui.
     }
     function openModal(content){$('#modal').innerHTML=content;$('#modal-backdrop').classList.add('open')}
     function closeModal(){$('#modal-backdrop').classList.remove('open')}
-    function newModal(kind){const predefined=kind&&kind!=='blank';if(predefined){createDoc(kind);return}openModal(`<div class="modal-head"><div><h3>Novo documento</h3><p>Escolha como quer começar.</p></div><button class="close" data-close>${xSvg()}</button></div><div class="new-options"><button class="new-option" data-create="article"><span class="template-icon">${fileSvg()}</span><strong>Artigo acadêmico</strong><small>Estrutura para pesquisa e publicação</small></button><button class="new-option" data-create="thesis"><span class="template-icon" style="background:#e9f7f2;color:#36a77d">${fileSvg()}</span><strong>Monografia</strong><small>Capítulos prontos para começar</small></button><button class="new-option" data-create="notes"><span class="template-icon" style="background:#fff5e7;color:#d99b35">${fileSvg()}</span><strong>Anotações</strong><small>Registre ideias e referências</small></button><button class="new-option" data-create="blank"><span class="template-icon" style="background:#eef4ff;color:#5a85cb">＋</span><strong>Em branco</strong><small>Comece com uma página simples</small></button></div>`)}
+    function newModal(kind){const predefined=kind&&kind!=='blank';if(predefined){createDoc(kind);return}openModal(`<div class="modal-head"><div><h3>Novo documento</h3><p>Escolha como quer começar.</p></div><button class="close" data-close>${xSvg()}</button></div><div class="new-options"><button class="new-option" data-create="article"><span class="template-icon">${fileSvg()}</span><strong>Artigo acadêmico</strong><small>Estrutura para pesquisa e publicação</small></button><button class="new-option" data-create="math"><span class="template-icon" style="background:#eef4ff;color:#4f83c4">∑</span><strong>Artigo matemático</strong><small>TikZ, PGFPlots e teoremas</small></button><button class="new-option" data-create="thesis"><span class="template-icon" style="background:#e9f7f2;color:#36a77d">${fileSvg()}</span><strong>Monografia</strong><small>Capítulos prontos para começar</small></button><button class="new-option" data-create="notes"><span class="template-icon" style="background:#fff5e7;color:#d99b35">${fileSvg()}</span><strong>Anotações</strong><small>Registre ideias e referências</small></button><button class="new-option" data-create="blank"><span class="template-icon" style="background:#eef4ff;color:#5a85cb">＋</span><strong>Em branco</strong><small>Comece com uma página simples</small></button></div>`)}
     function xSvg(){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 6 12 12M18 6 6 18"/></svg>'}
     function openShare(){const d=docs.find(x=>x.id===activeId);if(!d||d.permission!=='owner')return;let people=d.shared||[];openModal(`<div class="modal-head"><div><h3>Compartilhar documento</h3><p>Envie um convite por e-mail para colaborar em <b>${safe(d.title)}</b>.</p></div><button class="close" data-close>${xSvg()}</button></div><label class="field-label" for="invite-email">E-mail do colaborador</label><div class="email-row"><input id="invite-email" class="field" type="email" placeholder="nome@exemplo.com"/><select id="invite-role" class="role-select"><option value="editor">Pode editar</option><option value="viewer">Pode visualizar</option></select></div><div class="modal-footer" style="justify-content:space-between"><button class="btn btn-light btn-sm" id="copy-link">${linkSvg()} Copiar link</button><button class="btn btn-primary btn-sm" id="invite-btn">Enviar convite</button></div><div class="people-list"><h4>Pessoas com acesso</h4><div class="person"><div class="avatar">${safe(($('#account-avatar').textContent||'AD'))}</div><div><strong>${safe(($('#account-name').textContent||'Adson'))} (você)</strong><small>${safe(currentUser.email)}</small></div><em>Proprietário</em></div>${people.map(p=>`<div class="person"><div class="avatar" style="background:#e4effc;color:#4e76a6">${safe((p.name||p.email).slice(0,2).toUpperCase())}</div><div><strong>${safe(p.name||p.email)}</strong><small>${safe(p.email)}</small></div><em>${safe(p.role)}</em></div>`).join('')}</div><p style="margin:14px 0 0;font-size:10px;color:#85899d;line-height:1.5">A pessoa receberá um e-mail com um link. Para abrir o arquivo, ela deverá criar uma conta ou entrar usando esse mesmo endereço.</p>`)}
     function linkSvg(){return '<svg style="display:inline-block;vertical-align:middle;width:13px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 13a5 5 0 0 0 7.1 0l3-3A5 5 0 0 0 13 2.9l-1.7 1.7M14 11a5 5 0 0 0-7.1 0l-3 3A5 5 0 0 0 11 21.1l1.7-1.7"/></svg>'}
