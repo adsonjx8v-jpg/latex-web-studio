@@ -7,11 +7,15 @@ create table if not exists public.documents (
   title text not null default 'Novo documento',
   type text not null default 'Documento LaTeX',
   content text not null default '',
+  bibliography text not null default '',
   color text not null default 'purple' check (color in ('purple', 'green', 'blue')),
   favorite boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table public.documents add column if not exists bibliography text not null default '';
+alter table public.documents add column if not exists project_files jsonb not null default '{}'::jsonb;
 
 create table if not exists public.document_shares (
   id uuid primary key default gen_random_uuid(),
@@ -86,7 +90,7 @@ create policy "Owners and invitees read relevant shares" on public.document_shar
 
 revoke all on public.documents from anon, authenticated;
 grant select, insert, delete on public.documents to authenticated;
-grant update (title, type, content, color, favorite, updated_at) on public.documents to authenticated;
+grant update (title, type, content, bibliography, project_files, color, favorite, updated_at) on public.documents to authenticated;
 revoke all on public.document_shares from anon, authenticated;
 grant select on public.document_shares to authenticated;
 
