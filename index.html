@@ -18,6 +18,7 @@
   <script defer src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js"></script>
   <script src="supabase-config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="project-zip.js"></script>
   <style>
     :root{--ink:#20243a;--muted:#85899d;--line:#eceef4;--surface:#fff;--canvas:#f7f8fc;--purple:#6958e8;--purple-dark:#5746d4;--purple-soft:#f0eeff;--green:#28a879;--shadow:0 14px 42px rgba(37,42,76,.08);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink)}
     *{box-sizing:border-box}body{margin:0;background:var(--canvas);font-size:14px}button,input,textarea{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid rgba(105,88,232,.2);outline-offset:2px}svg{display:block}
@@ -37,6 +38,14 @@
     .latex-figure-placeholder::before{content:'TikZ · PGFPlots';display:inline-flex;padding:5px 10px;border-radius:999px;background:#e0e7ff;color:#4f46e5;font-size:10px;font-weight:700;letter-spacing:.04em}
     .latex-figure-placeholder figcaption{color:#475569;font-style:italic}
   </style>
+  <style>
+    .import-project-button svg{width:15px;height:15px;flex:none}
+    .project-file-separator{height:1px;background:var(--line);margin:9px 7px}
+    .file-item span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .file-item.file-binary{color:#898da0}
+    .file-item.file-binary:after{content:'BIN';margin-left:auto;font-size:8px;color:#a2a5b4}
+    @media(max-width:560px){.import-project-button{font-size:0;width:34px;padding:0}.import-project-button svg{width:16px;height:16px}}
+  </style>
 </head>
 <body class="auth-required">
   <div class="auth-gate" id="auth-gate"><section class="auth-card"><div class="auth-brand"><span class="auth-brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3.8h8l4 4V20a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 4 20V5.3a1.5 1.5 0 0 1 1.5-1.5Z"/><path d="M14 4v4h4M8 12h6M8 16h8"/></svg></span><span>Luma<span style="color:#7d7e9a;font-weight:500">Tex</span></span></div><div id="auth-content"></div></section></div>
@@ -54,7 +63,7 @@
       <div class="workspace-card"><div class="avatar" id="account-avatar">AD</div><div><strong id="account-name">Adson</strong><small id="account-email">Minha conta</small></div><button class="more" id="sign-out" aria-label="Sair da conta" title="Sair da conta">↪</button></div>
     </aside>
     <main class="main">
-      <header class="topbar"><div class="crumb" id="breadcrumb"><span>Workspace</span><span>›</span><b>Visão geral</b></div><div class="top-actions"><button class="icon-btn" id="help-btn" title="Ajuda" aria-label="Ajuda"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M9.7 9a2.4 2.4 0 1 1 4.2 1.5c-1.1 1.1-1.9 1.3-1.9 3M12 17.4v.1"/></svg></button><button class="btn btn-primary" id="new-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Novo documento</button></div></header>
+      <header class="topbar"><div class="crumb" id="breadcrumb"><span>Workspace</span><span>›</span><b>Visão geral</b></div><div class="top-actions"><button class="icon-btn" id="help-btn" title="Ajuda" aria-label="Ajuda"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M9.7 9a2.4 2.4 0 1 1 4.2 1.5c-1.1 1.1-1.9 1.3-1.9 3M12 17.4v.1"/></svg></button><button class="btn btn-light import-project-button" id="import-project-btn" type="button" title="Importar um projeto LaTeX em ZIP"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 16V4m0 0L7 9m5-5 5 5"/><path d="M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>Importar ZIP</button><input id="zip-import-input" type="file" accept=".zip,application/zip" hidden><button class="btn btn-primary" id="new-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Novo documento</button></div></header>
       <section class="dashboard-screen" id="dashboard">
         <div class="content">
           <div class="greeting"><div><div class="eyebrow">QUARTA-FEIRA, 15 DE OUTUBRO</div><h1>Olá, <span id="greeting-name">Adson</span></h1><p>Uma boa ideia merece um espaço à altura. O que vamos escrever hoje?</p></div><button class="btn btn-primary" id="new-btn-alt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>Criar projeto</button></div>
@@ -76,7 +85,7 @@
           <div class="editor-top"><div class="editor-doc-title"><button class="icon-btn mobile-files" id="mobile-preview-toggle" title="Alternar painel"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M12 4v16"/></svg></button><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 3.5h10l4 4V20a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1zM15 4v4h4"/></svg><span id="editor-title">Artigo de pesquisa</span><span class="saved">Salvo</span></div><div class="editor-actions"><div class="collab-avatars" id="collab-avatars"><span>AS</span><span>MC</span></div><button class="btn btn-light share-button" id="share-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 16V4m0 0L7 9m5-5 5 5"/><path d="M5 13v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"/></svg>Compartilhar</button><button class="btn btn-light" id="download-pdf" type="button" title="Baixar PDF" aria-label="Baixar PDF" disabled><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v12m0 0 5-5m-5 5-5-5"/><path d="M5 17v3h14v-3"/></svg>Baixar PDF</button><button class="btn btn-primary" id="compile-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m8 5 11 7-11 7z"/></svg>Compilar PDF</button></div></div>
           <div class="editor-toolbar"><button class="tool mobile-files" id="back-home" title="Voltar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m15 18-6-6 6-6"/></svg></button><div class="mobile-file-tabs"><button class="mobile-file-tab active" data-project-file="main.tex" type="button">main.tex</button><button class="mobile-file-tab" data-project-file="referencias.bib" type="button">referencias.bib</button></div><button class="tool" title="Desfazer" data-insert="undo">↶</button><button class="tool" title="Refazer" data-insert="redo">↷</button><span class="tool-divider"></span><button class="tool" title="Negrito" data-wrap="textbf"><b>B</b></button><button class="tool" title="Itálico" data-wrap="textit"><i>I</i></button><button class="tool" title="Lista" data-snippet="\begin{itemize}\n  \item Primeiro item\n  \item Segundo item\n\end{itemize}">☷</button><span class="tool-divider"></span><button class="tool" title="Inserir seção" data-snippet="\section{Nova seção}\n">H₂</button><button class="tool" title="Inserir imagem" data-snippet="\begin{figure}[h]\n  \centering\n  \includegraphics[width=0.8\\textwidth]{imagem.png}\n  \caption{Descrição da imagem}\n\end{figure}\n">▧</button><span class="toolbar-label">LaTeX · UTF-8</span></div>
           <div class="editor-workspace" id="editor-workspace">
-            <aside class="file-panel"><div class="panel-title">Arquivos do projeto <span>＋</span></div><div id="project-files"></div><div class="file-tree-note">✦ Clique em <code>referencias.bib</code> para editar ou adicionar referências. No <code>main.tex</code>, cite uma entrada com <code>\cite{chave}</code>.</div></aside>
+            <aside class="file-panel"><div class="panel-title">Arquivos do projeto <span>＋</span></div><div id="project-files"></div><div class="file-tree-note">✦ Arquivos auxiliares importados são enviados ao compilador junto com o <code>main.tex</code>. Arquivos de texto podem ser editados aqui.</div></aside>
             <section class="source-panel"><div class="pane-head"><strong id="pane-filename">main.tex</strong><span id="pane-mode">Editor de texto</span></div><div class="source-wrap"><div class="line-numbers" id="line-numbers">1</div><textarea class="source" id="source" spellcheck="false" aria-label="Editor LaTeX" autocomplete="off"></textarea><div class="completion-menu" id="completion-menu"></div><div class="smartbar"><div class="smart-head"><strong><span class="sparkle">✦</span> Sugestões inteligentes</strong><span>Tab para completar</span></div><div class="suggestions" id="smart-suggestions"></div></div></div></section>
             <section class="preview-panel"><div class="preview-toolbar"><div><strong>Pré-visualização</strong><span>·</span><span id="preview-page">Prévia automática</span></div><div><button title="Diminuir zoom">−</button><span>100%</span><button title="Aumentar zoom">＋</button><button id="open-pdf" title="Abrir PDF compilado">↗</button></div></div><div class="preview-scroll" id="preview-scroll"><article class="paper-preview" id="paper-preview"></article><iframe class="pdf-preview" id="pdf-preview" title="PDF compilado em LaTeX"></iframe><details class="compile-details" id="compile-details" hidden><summary>Ver log da compilação</summary><pre id="compile-log"></pre></details></div><div class="preview-status" id="preview-status">Pré-visualização atualizada automaticamente</div></section>
           </div>
@@ -276,7 +285,7 @@ Comece a escrever aqui.
     let docs = [], activeId = null, activeFile = 'main.tex', viewFilter = 'recent', completionIndex = 0, compileTimer, supabaseClient = null, currentUser = null, activeChannel = null, authMode = 'login', sourceDirty = false, latexEngine = null, latexEnginePromise = null, compiledPdfUrl = null;
     const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
     function loadDocs(){try{const v=JSON.parse(localStorage.getItem('lumatex-docs'));return Array.isArray(v)?v:[]}catch{return []}}
-    function persist(){if(currentUser)localStorage.setItem('lumatex-docs-'+currentUser.id,JSON.stringify(docs));$('#nav-count').textContent=String(docs.length).padStart(2,'0')}
+    function persist(){if(currentUser){try{localStorage.setItem('lumatex-docs-'+currentUser.id,JSON.stringify(docs))}catch(error){console.warn('O cache local foi ignorado; os documentos continuam salvos no Supabase.',error)}}$('#nav-count').textContent=String(docs.length).padStart(2,'0')}
     function configured(){const url=window.LUMATEX_SUPABASE_URL||'',key=window.LUMATEX_SUPABASE_ANON_KEY||'';return /^https:\/\//.test(url)&&key.length>20&&!key.includes('COLE_')}
     function authPageUrl(){return location.href.split('#')[0]}
     function renderAuth(message='',kind=''){
@@ -305,16 +314,16 @@ Comece a escrever aqui.
     }
     function lockWorkspace(){if(activeChannel&&supabaseClient)supabaseClient.removeChannel(activeChannel);activeChannel=null;currentUser=null;docs=[];activeId=null;document.body.classList.add('auth-required');authMode='login';renderAuth();}
     async function loadWorkspace(){
-      const {data:rows,error}=await supabaseClient.from('documents').select('id,owner_id,title,type,content,bibliography,color,favorite,updated_at').order('updated_at',{ascending:false});
+      const {data:rows,error}=await supabaseClient.from('documents').select('id,owner_id,title,type,content,bibliography,project_files,color,favorite,updated_at').order('updated_at',{ascending:false});
       if(error){showToast('Não foi possível carregar seus documentos. Confira o schema e as políticas RLS.');console.error(error);return}
       let shares=[];if(rows.length){const result=await supabaseClient.from('document_shares').select('document_id,email,role,invite_status,owner_id').in('document_id',rows.map(x=>x.id));if(result.error){showToast('Falha ao carregar os acessos compartilhados.');console.error(result.error);return}shares=result.data||[]}
-      docs=rows.map(row=>{const mine=shares.filter(s=>s.document_id===row.id);const isOwner=row.owner_id===currentUser.id;return{id:row.id,title:row.title,type:row.type||'Documento LaTeX',content:row.content,bibliography:row.bibliography??'',color:row.color||'purple',favorite:!!row.favorite,updated:'Salvo na nuvem',ownerId:row.owner_id,permission:isOwner?'owner':(mine.find(s=>s.email.toLowerCase()===currentUser.email.toLowerCase())?.role||'viewer'),isSharedWithMe:!isOwner,shared:mine.map(s=>({email:s.email,role:s.role==='editor'?'Pode editar':'Pode visualizar',name:formatEmailName(s.email)}))}});
-      if(!rows.length){const cached=loadDocs();if(cached.length){const migrated=cached.map(d=>({id:crypto.randomUUID(),owner_id:currentUser.id,title:d.title||'Documento sem título',type:d.type||'Documento LaTeX',content:d.content||'',bibliography:d.bibliography??starterBibliography,color:d.color||'purple',favorite:!!d.favorite}));const inserted=await supabaseClient.from('documents').insert(migrated);if(inserted.error){showToast('Falha ao importar seus documentos deste navegador.');console.error(inserted.error)}else{localStorage.removeItem('lumatex-docs');return loadWorkspace()}}}
+      docs=rows.map(row=>{const mine=shares.filter(s=>s.document_id===row.id);const isOwner=row.owner_id===currentUser.id;return{id:row.id,title:row.title,type:row.type||'Documento LaTeX',content:row.content,bibliography:row.bibliography??'',projectFiles:row.project_files||{},color:row.color||'purple',favorite:!!row.favorite,updated:'Salvo na nuvem',ownerId:row.owner_id,permission:isOwner?'owner':(mine.find(s=>s.email.toLowerCase()===currentUser.email.toLowerCase())?.role||'viewer'),isSharedWithMe:!isOwner,shared:mine.map(s=>({email:s.email,role:s.role==='editor'?'Pode editar':'Pode visualizar',name:formatEmailName(s.email)}))}});
+      if(!rows.length){const cached=loadDocs();if(cached.length){const migrated=cached.map(d=>({id:crypto.randomUUID(),owner_id:currentUser.id,title:d.title||'Documento sem título',type:d.type||'Documento LaTeX',content:d.content||'',bibliography:d.bibliography??starterBibliography,project_files:d.projectFiles||{},color:d.color||'purple',favorite:!!d.favorite}));const inserted=await supabaseClient.from('documents').insert(migrated);if(inserted.error){showToast('Falha ao importar seus documentos deste navegador.');console.error(inserted.error)}else{localStorage.removeItem('lumatex-docs');return loadWorkspace()}}}
       persist();renderDocs();const requested=new URLSearchParams(location.search).get('document');if(requested&&docs.some(d=>d.id===requested)){history.replaceState({},'',location.pathname+location.hash);openDoc(requested)}
     }
     async function saveDoc(d){
       if(!supabaseClient||!d||!currentUser)return false;
-      const {data,error}=await supabaseClient.from('documents').update({title:d.title,type:d.type,content:d.content,bibliography:d.bibliography??'',favorite:d.favorite,color:d.color,updated_at:new Date().toISOString()}).eq('id',d.id).select('id').maybeSingle();
+      const {data,error}=await supabaseClient.from('documents').update({title:d.title,type:d.type,content:d.content,bibliography:d.bibliography??'',project_files:d.projectFiles||{},favorite:d.favorite,color:d.color,updated_at:new Date().toISOString()}).eq('id',d.id).select('id').maybeSingle();
       if(error||!data){console.error(error||'No accessible document row');$('#editor-title').title='Não foi possível salvar. Verifique sua conexão e permissão.';$('#editor-title').style.color='#c65f5f';$('.saved').textContent='Falha ao salvar';return false}
       if(activeId===d.id&&activeFileContent(d)===$('#source').value)sourceDirty=false;
       d.updated='Salvo na nuvem';persist();$('#editor-title').style.color='';$('.saved').textContent='Salvo na nuvem';return true
@@ -322,23 +331,24 @@ Comece a escrever aqui.
     async function saveFavorite(d){if(d)await saveDoc(d)}
     function safe(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
     function titleFrom(content){return (content.match(/\\title\{([^}]*)\}/)||[])[1]||'Documento sem título'}
-    function activeFileContent(d){return activeFile==='referencias.bib'?(d.bibliography??''):d.content}
-    function syncActiveFile(d){if(!d)return;if(activeFile==='referencias.bib')d.bibliography=$('#source').value;else{d.content=$('#source').value;d.title=titleFrom(d.content)}}
+    function activeFileContent(d){if(activeFile==='referencias.bib')return d.bibliography??'';if(activeFile==='main.tex')return d.content;const file=d.projectFiles?.[activeFile];return file?.kind==='text'?file.content:''}
+    function syncActiveFile(d){if(!d)return;if(activeFile==='referencias.bib')d.bibliography=$('#source').value;else if(activeFile==='main.tex'){d.content=$('#source').value;d.title=titleFrom(d.content)}else if(d.projectFiles?.[activeFile]?.kind==='text')d.projectFiles[activeFile].content=$('#source').value}
     function renderProjectFiles(d){
       const viewer=d.permission==='viewer';
-      $('#project-files').innerHTML='<button class="file-item '+(activeFile==='main.tex'?'active':'')+'" data-project-file="main.tex" type="button">'+fileSvg()+'<span>main.tex</span></button><button class="file-item '+(activeFile==='referencias.bib'?'active':'')+'" data-project-file="referencias.bib" type="button">'+fileSvg()+'<span>referencias.bib</span></button>';$$('.mobile-file-tab').forEach(button=>button.classList.toggle('active',button.dataset.projectFile===activeFile));
-      $('#source').readOnly=viewer;$('#source').placeholder=viewer?'Você tem acesso somente para visualizar.':activeFile==='referencias.bib'?'Adicione ou edite referências BibTeX aqui.':'';
-      $('#source').setAttribute('aria-label',activeFile==='main.tex'?'Editor LaTeX':'Editor de referências BibTeX');
-      $('#pane-filename').textContent=activeFile;$('#pane-mode').textContent=activeFile==='main.tex'?'Editor LaTeX':'Referências BibTeX';
-      $('#editor-workspace').classList.toggle('bib-mode',activeFile==='referencias.bib');
-      $$('.editor-toolbar button[data-wrap],.editor-toolbar button[data-snippet],.editor-toolbar button[data-insert]').forEach(button=>button.disabled=viewer||activeFile==='referencias.bib');
-      $('#smart-suggestions').style.pointerEvents=viewer||activeFile==='referencias.bib'?'none':'';$('#smart-suggestions').style.opacity=viewer||activeFile==='referencias.bib'?'.5':'';
+      const projectFiles=d.projectFiles||{},sideFiles=Object.keys(projectFiles).sort((a,b)=>a.localeCompare(b)).map(path=>{const file=projectFiles[path],text=file?.kind==='text';return '<button class="file-item '+(activeFile===path?'active':'')+(text?'':' file-binary')+'" data-project-file="'+safe(path)+'" type="button" '+(!text?'disabled title="Arquivo binário disponível para compilação"':'')+'>'+fileSvg()+'<span title="'+safe(path)+'">'+safe(path)+'</span></button>'}).join('');
+      $('#project-files').innerHTML='<button class="file-item '+(activeFile==='main.tex'?'active':'')+'" data-project-file="main.tex" type="button">'+fileSvg()+'<span>main.tex</span></button><button class="file-item '+(activeFile==='referencias.bib'?'active':'')+'" data-project-file="referencias.bib" type="button">'+fileSvg()+'<span>referencias.bib</span></button>'+(sideFiles?'<div class="project-file-separator"></div>'+sideFiles:'');const mobileTabs=$('.mobile-file-tabs');mobileTabs.innerHTML=['main.tex','referencias.bib',...Object.keys(projectFiles).filter(path=>projectFiles[path]?.kind==='text').sort((a,b)=>a.localeCompare(b))].map(path=>`<button class="mobile-file-tab ${path===activeFile?'active':''}" data-project-file="${safe(path)}" type="button" title="${safe(path)}">${safe(path.split('/').pop())}</button>`).join('');
+      const isBib=activeFile==='referencias.bib',isMain=activeFile==='main.tex',activeProjectFile=projectFiles[activeFile],isTextProjectFile=activeProjectFile?.kind==='text';
+      $('#source').readOnly=viewer||(!isBib&&!isMain&&!isTextProjectFile);$('#source').placeholder=viewer?'Você tem acesso somente para visualizar.':isBib?'Adicione ou edite referências BibTeX aqui.':isTextProjectFile?'Arquivo auxiliar do projeto.':'Arquivo binário incluído para compilação.';
+      $('#source').setAttribute('aria-label',isMain?'Editor LaTeX':isBib?'Editor de referências BibTeX':'Editor do arquivo '+activeFile);
+      $('#pane-filename').textContent=activeFile;$('#pane-mode').textContent=isMain?'Editor LaTeX':isBib?'Referências BibTeX':isTextProjectFile?'Arquivo auxiliar':'Arquivo binário';
+      $('#editor-workspace').classList.toggle('bib-mode',isBib||!isMain);
+      $$('.editor-toolbar button[data-wrap],.editor-toolbar button[data-snippet],.editor-toolbar button[data-insert]').forEach(button=>button.disabled=viewer||isBib||!isMain);
+      $('#smart-suggestions').style.pointerEvents=viewer||!isMain?'none':'';$('#smart-suggestions').style.opacity=viewer||!isMain?'.5':'';
       $('#share-btn').style.display=d.permission==='owner'?'':'none';
-      $('#preview-status').textContent=activeFile==='main.tex'?'Pré-visualização atualizada automaticamente':'Prévia do main.tex; edite as referências neste arquivo.';
+      $('#preview-status').textContent=isMain?'Pré-visualização atualizada automaticamente':'Prévia do main.tex; arquivos auxiliares são usados na compilação.';
     }
     async function switchProjectFile(file){
-      if(!['main.tex','referencias.bib'].includes(file)||file===activeFile)return;
-      const d=docs.find(x=>x.id===activeId);if(!d)return;
+      const d=docs.find(x=>x.id===activeId);if(!d)return;const entry=d.projectFiles?.[file];if(file!=='main.tex'&&file!=='referencias.bib'&&entry?.kind!=='text'){showToast('Este arquivo binário será incluído na compilação e não pode ser editado como texto.');return}if(file===activeFile)return;
       if(sourceDirty){clearTimeout(onSourceInput.saveTimer);syncActiveFile(d);const saved=await saveDoc(d);if(!saved)return}
       activeFile=file;sourceDirty=false;$('#source').value=activeFileContent(d)??'';
       renderProjectFiles(d);updateNumbers();$('#completion-menu').classList.remove('show');
@@ -348,6 +358,40 @@ Comece a escrever aqui.
     function renderDocs(){const q=$('#search').value.trim().toLowerCase();let list=[...docs];if(viewFilter==='shared')list=list.filter(d=>d.isSharedWithMe);if(viewFilter==='all')list=list.filter(d=>!d.isSharedWithMe);if(viewFilter==='favorites')list=list.filter(d=>d.favorite&&!d.isSharedWithMe);if(q)list=list.filter(d=>d.title.toLowerCase().includes(q)||d.type.toLowerCase().includes(q));if(viewFilter==='recent'&&!q)list=list.slice(0,3);$('#docs-heading').textContent=viewFilter==='shared'?'Compartilhados com você':viewFilter==='favorites'?'Seus favoritos':viewFilter==='all'?'Meus documentos':'Continue de onde parou';$('#docs-subheading').textContent=viewFilter==='recent'?'Seus documentos recentes, todos em um só lugar.':`${list.length} ${list.length===1?'documento':'documentos'} encontrados.`;$('#doc-grid').innerHTML=list.length?list.map(d=>`<article class="doc-card" data-open="${safe(d.id)}"><div class="doc-top"><span class="doc-icon ${d.color==='purple'?'':d.color}">${fileSvg()}</span>${!d.isSharedWithMe?`<button class="doc-menu" data-favorite="${safe(d.id)}" title="${d.favorite?'Remover dos favoritos':'Adicionar aos favoritos'}">${d.favorite?'★':'☆'}</button>`:''}</div><h3 class="doc-title">${safe(d.title)}</h3><p class="doc-subtitle">${safe(d.type)}</p><div class="doc-footer"><span>◷ &nbsp;${safe(d.updated||'Salvo na nuvem')}</span>${d.shared?.length?'<span class="shared-badge">Compartilhado</span>':'<span>LaTeX</span>'}</div></article>`).join(''):`<div class="empty">${q?'Nenhum documento encontrado. Tente outra busca.':'Nada por aqui ainda. Crie um documento para começar.'}</div>`;persist()}
     function fileSvg(){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 3.5h10l4 4V20a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1zM15 4v4h4"/></svg>'}
     function showToast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>t.classList.remove('show'),2600)}
+    const textProjectExtensions=new Set(['tex','bib','cls','sty','bst','def','ldf','fd','cfg','clo','ist','txt','csv','dat','alg','xml','html','css','md','r','m','py']);
+    function projectTextFile(path){return textProjectExtensions.has((path.split('.').pop()||'').toLowerCase())}
+    function bytesToBase64(bytes){let value='';for(let offset=0;offset<bytes.length;offset+=0x8000)value+=String.fromCharCode(...bytes.subarray(offset,offset+0x8000));return btoa(value)}
+    function base64ToBytes(value){const binary=atob(value),bytes=new Uint8Array(binary.length);for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);return bytes}
+    function zipEntriesToProject(entries,archiveName){
+      const decoder=new TextDecoder('utf-8'),texEntries=entries.filter(entry=>/\.tex$/i.test(entry.path)).map(entry=>({...entry,text:decoder.decode(entry.bytes)}));
+      const candidates=texEntries.filter(entry=>/\\documentclass\b/.test(entry.text)&&/\\begin\s*\{document\}/.test(entry.text));
+      const main=candidates.find(entry=>/^main\.tex$/i.test(entry.path.split('/').pop()))||candidates.find(entry=>/sn-article\.tex$/i.test(entry.path.split('/').pop()))||candidates[0]||texEntries[0];
+      if(!main)throw new Error('O ZIP precisa conter pelo menos um arquivo .tex.');
+      const projectFiles={};let bibliography='';
+      for(const entry of entries){if(entry.path===main.path)continue;const path=entry.path;
+        if(projectTextFile(path)){const content=decoder.decode(entry.bytes);if(path.toLowerCase()==='referencias.bib'&&!bibliography){bibliography=content;continue}projectFiles[path]={kind:'text',content,size:entry.bytes.length}}
+        else projectFiles[path]={kind:'binary',base64:bytesToBase64(entry.bytes),size:entry.bytes.length};
+      }
+      const parsedTitle=titleFrom(main.text),archiveTitle=(archiveName||'Projeto LaTeX').replace(/\.zip$/i,'').replace(/[_-]+/g,' ').trim();
+      return{content:main.text,bibliography,projectFiles,title:parsedTitle!=='Documento sem título'?parsedTitle:(archiveTitle||'Projeto LaTeX'),mainPath:main.path};
+    }
+    async function importZipProject(file){
+      if(!file)return;
+      if(!currentUser||!supabaseClient){showToast('Entre na sua conta antes de importar um projeto.');return}
+      if(activeId&&sourceDirty){clearTimeout(onSourceInput.saveTimer);const current=docs.find(x=>x.id===activeId);if(current){syncActiveFile(current);if(!await saveDoc(current))return}}
+      const button=$('#import-project-btn'),oldText=button.innerHTML;button.disabled=true;button.textContent='Abrindo ZIP…';
+      try{
+        const entries=await window.LumaTexZip.extract(file),project=zipEntriesToProject(entries,file.name),id=crypto.randomUUID();
+        const doc={id,title:project.title,type:'Projeto LaTeX',content:project.content,bibliography:project.bibliography,projectFiles:project.projectFiles,color:'blue',favorite:false,updated:'Salvando…',permission:'owner',shared:[]};
+        button.textContent='Salvando projeto…';
+        const {error}=await supabaseClient.from('documents').insert({id:doc.id,owner_id:currentUser.id,title:doc.title,type:doc.type,content:doc.content,bibliography:doc.bibliography,project_files:doc.projectFiles,color:doc.color,favorite:false});
+        if(error){console.error(error);if(/project_files|column/i.test(error.message||''))throw new Error('Atualize o banco no Supabase com a migração supabase/migrations/20261018190000_add_project_files.sql e tente novamente.');throw new Error('Não foi possível salvar o projeto. Confira sua conexão e as políticas do Supabase.')}
+        doc.updated='Salvo na nuvem';docs.unshift(doc);persist();renderDocs();openDoc(doc.id);showToast(`Projeto importado. Arquivo principal: ${project.mainPath}.`)
+      }catch(error){console.error(error);showToast(error?.message||'Não foi possível importar esse ZIP.')}
+      finally{button.disabled=false;button.innerHTML=oldText;$('#zip-import-input').value=''}
+    }
+    function ensureCompilerFolders(engine,path){let current='';const parts=path.split('/').slice(0,-1);for(const part of parts){current=current?current+'/'+part:part;engine.makeMemFSFolder(current)}}
+    function writeProjectFilesToCompiler(engine,projectFiles){for(const [path,file]of Object.entries(projectFiles||{})){ensureCompilerFolders(engine,path);if(file?.kind==='text')engine.writeMemFSFile(path,file.content||'');else if(file?.kind==='binary'&&file.base64)engine.writeBinaryMemFSFile(path,base64ToBytes(file.base64))}}
     async function switchToDashboard(){
       if(activeId&&sourceDirty){clearTimeout(onSourceInput.saveTimer);const d=docs.find(x=>x.id===activeId);if(d){syncActiveFile(d);const saved=await saveDoc(d);if(!saved)return}}clearCompiledPdf();
       if(activeChannel&&supabaseClient)supabaseClient.removeChannel(activeChannel);activeChannel=null;activeId=null;activeFile='main.tex';$('#editor').classList.remove('visible');$('#dashboard').classList.remove('hidden');$('#breadcrumb').innerHTML='<span>Workspace</span><span>›</span><b>Visão geral</b>';$$('.nav-item').forEach(x=>x.classList.remove('active'));document.querySelector('[data-nav="home"]').classList.add('active');renderDocs()
@@ -356,9 +400,10 @@ Comece a escrever aqui.
       if(activeChannel&&supabaseClient)supabaseClient.removeChannel(activeChannel);
       activeChannel=supabaseClient.channel('document-'+id).on('postgres_changes',{event:'UPDATE',schema:'public',table:'documents',filter:'id=eq.'+id},payload=>{
         const changed=docs.find(x=>x.id===id);if(!changed||!payload.new)return;
-        const localMainDirty=activeId===id&&activeFile==='main.tex'&&sourceDirty,localBibDirty=activeId===id&&activeFile==='referencias.bib'&&sourceDirty;
+         const localMainDirty=activeId===id&&activeFile==='main.tex'&&sourceDirty,localBibDirty=activeId===id&&activeFile==='referencias.bib'&&sourceDirty,localProjectDirty=activeId===id&&activeFile!=='main.tex'&&activeFile!=='referencias.bib'&&sourceDirty;
         if(!localMainDirty){changed.title=payload.new.title;changed.type=payload.new.type;changed.content=payload.new.content}
         if(!localBibDirty)changed.bibliography=payload.new.bibliography??changed.bibliography;
+         if(!localProjectDirty)changed.projectFiles=payload.new.project_files||{};
         changed.updated='Atualizado agora';
         if(activeId===id){$('#editor-title').textContent=changed.title;const remote=activeFileContent(changed);if($('#source').value!==remote&&!sourceDirty){$('#source').value=remote;updateNumbers();if(activeFile==='main.tex')updateSmartSuggestions();showToast('Documento atualizado por um colaborador.')}updatePreview(changed.content)}
         persist()
@@ -374,8 +419,8 @@ Comece a escrever aqui.
     }
     async function createDoc(kind='blank',name){
       const map={article:['Artigo acadêmico',starterArticle,'purple'],math:['Artigo matemático',mathArticle,'blue'],thesis:['Monografia',thesisText,'green'],notes:['Anotações',notesText,'blue'],blank:['Novo documento',blankText,'purple']};let [type,content,color]=map[kind]||map.blank;const title=name||type;content=content.replace(/\\title\{[^}]*\}/,'\\title{'+title+'}');
-      const d={id:crypto.randomUUID(),title,type,updated:'Salvando…',content,bibliography:starterBibliography,color,favorite:false,permission:'owner',shared:[]};
-      const {error}=await supabaseClient.from('documents').insert({id:d.id,owner_id:currentUser.id,title:d.title,type:d.type,content:d.content,bibliography:d.bibliography,color:d.color,favorite:false});
+      const d={id:crypto.randomUUID(),title,type,updated:'Salvando…',content,bibliography:starterBibliography,projectFiles:{},color,favorite:false,permission:'owner',shared:[]};
+      const {error}=await supabaseClient.from('documents').insert({id:d.id,owner_id:currentUser.id,title:d.title,type:d.type,content:d.content,bibliography:d.bibliography,project_files:d.projectFiles,color:d.color,favorite:false});
       if(error){showToast('Não foi possível criar o documento. Confira sua conexão.');console.error(error);return}
       docs.unshift(d);persist();closeModal();openDoc(d.id,['article','thesis'].includes(kind)?'referencias.bib':'main.tex');showToast('Documento criado e salvo na nuvem.')
     }
@@ -397,7 +442,7 @@ Comece a escrever aqui.
       if($('#source').readOnly)return;sourceDirty=true;clearCompiledPdf();$('#compile-details').hidden=true;
       if(activeFile==='main.tex')autoCloseEnvironment();
       updateNumbers();const d=docs.find(x=>x.id===activeId);
-      if(d){if(activeFile==='referencias.bib')d.bibliography=$('#source').value;else{d.content=$('#source').value;d.title=titleFrom(d.content);$('#editor-title').textContent=d.title}d.updated='Salvando…';$('.saved').textContent='Salvando…';persist()}
+      if(d){syncActiveFile(d);if(activeFile==='main.tex')$('#editor-title').textContent=d.title;d.updated='Salvando…';$('.saved').textContent='Salvando…';persist()}
       if(activeFile==='main.tex'){updateCompletion();updateSmartSuggestions();clearTimeout(onSourceInput.previewTimer);onSourceInput.previewTimer=setTimeout(()=>updatePreview($('#source').value),220)}else $('#completion-menu').classList.remove('show');
       clearTimeout(onSourceInput.saveTimer);onSourceInput.saveTimer=setTimeout(()=>{if(d)saveDoc(d)},450)
     }
@@ -448,8 +493,8 @@ Comece a escrever aqui.
       })().catch(error=>{latexEnginePromise=null;throw error});
       return latexEnginePromise;
     }
-        function prepareLatexSource(source){const pgfplotsCompatAdjusted=source.includes('pgfplotsset')&&/compat\s*=\s*1\.18/.test(source),compilerSource=pgfplotsCompatAdjusted?source.replace(/(compat\s*=\s*)1\.18\b/g,(_,prefix)=>prefix+'1.17'):source;return{source:compilerSource,pgfplotsCompatAdjusted}}
     function compiledFileBase(title){return(title||'documento').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9_-]+/g,'-').replace(/^-+|-+$/g,'')||'documento'}
+    function prepareLatexSource(source){const pgfplotsCompatAdjusted=/\\pgfplotsset\s*\{[^}]*?\bcompat\s*=\s*1\.18\b[^}]*\}/.test(source),compilerSource=source.replace(/(\\pgfplotsset\s*\{[^}]*?\bcompat\s*=\s*)1\.18\b/g,(_,prefix)=>prefix+'1.17');return{source:compilerSource,pgfplotsCompatAdjusted}}
     function downloadCompiledPdf(){if(!compiledPdfUrl)return;const a=document.createElement('a');a.href=compiledPdfUrl;a.download=compiledFileBase($('#editor-title').textContent)+'.pdf';document.body.appendChild(a);a.click();a.remove()}
     async function compileCurrentDocument(){
       const button=$('#compile-btn'),oldButton=button.innerHTML;
@@ -458,11 +503,11 @@ Comece a escrever aqui.
       $('#compile-details').hidden=true;
       try{
         const d=docs.find(x=>x.id===activeId),editable=d&&d.permission!=='viewer';
-        if(d&&editable){if(activeFile==='main.tex'){autoCloseEnvironment();d.content=$('#source').value;d.title=titleFrom(d.content);$('#editor-title').textContent=d.title}else d.bibliography=$('#source').value;clearTimeout(onSourceInput.saveTimer);persist();if(!await saveDoc(d))throw new Error('O documento não foi salvo. Verifique a conexão e tente novamente.');}
+        if(d&&editable){if(activeFile==='main.tex')autoCloseEnvironment();syncActiveFile(d);if(activeFile==='main.tex')$('#editor-title').textContent=d.title;clearTimeout(onSourceInput.saveTimer);persist();if(!await saveDoc(d))throw new Error('O documento não foi salvo. Verifique a conexão e tente novamente.');}
         const source=d?d.content:$('#source').value,bibliography=d?.bibliography||'';
         updatePreview(source);
-        const engine=await ensureLatexEngine();
-        const compilerInput=prepareLatexSource(source);engine.setEngineMainFile('main.tex');engine.writeMemFSFile('main.tex',compilerInput.source);
+        const engine=await ensureLatexEngine(),compilerInput=prepareLatexSource(source);
+        engine.setEngineMainFile('main.tex');engine.writeMemFSFile('main.tex',compilerInput.source);writeProjectFilesToCompiler(engine,d?.projectFiles);
         if(bibliography)engine.writeMemFSFile('referencias.bib',bibliography);
         button.textContent='Compilando PDF…';
         const started=Date.now(),compileTimer=setInterval(()=>{const seconds=Math.floor((Date.now()-started)/1000);$('#preview-status').textContent='Compilando LaTeX e carregando os pacotes usados… '+seconds+' s';},1000);
@@ -472,7 +517,7 @@ Comece a escrever aqui.
           if(result.status===0&&/Rerun to get|Rerun LaTeX|Please rerun|Label\(s\) may have changed|No file [^\s]+\.(aux|toc|lof|lot)/.test(result.log||''))result=await withTimeout(engine.compileLaTeX(),240000,'A segunda passagem LaTeX passou de 4 minutos. Confira o log e tente novamente.');
         }catch(error){if(String(error?.message||'').includes('4 minutos')){engine.closeWorker();latexEngine=null;latexEnginePromise=null}throw error}finally{clearInterval(compileTimer)}
         if(result.status!==0||!result.pdf){
-          $('#compile-log').textContent=(result.log||'O compilador terminou sem gerar um PDF. Confira o preâmbulo e os pacotes.')+(compilerInput.pgfplotsCompatAdjusted?' | LumaTex: compat=1.18 foi ajustado para 1.17 nesta compilação.':'');
+          $('#compile-log').textContent=(result.log||'O compilador terminou sem gerar um PDF. Confira o preâmbulo e os pacotes.')+(compilerInput.pgfplotsCompatAdjusted?'\n\nLumaTex: o motor incluído oferece PGFPlots até compat=1.17; esta compilação usou 1.17 sem alterar o texto salvo.':'');
           $('#compile-details').hidden=false;showLivePreview();
           $('#preview-status').textContent='Falha na compilação LaTeX. Abra “Ver log da compilação” para localizar o erro.';
           showToast('Não foi possível compilar. Consulte o log na pré-visualização.');return;
@@ -481,12 +526,14 @@ Comece a escrever aqui.
         compiledPdfUrl=URL.createObjectURL(new Blob([result.pdf],{type:'application/pdf'}));
         $('#download-pdf').disabled=false;$('#open-pdf').disabled=false;
         $('#pdf-preview').src=compiledPdfUrl;$('#preview-scroll').classList.add('pdf-mode');
-        $('#compile-log').textContent=(result.log||'Compilado sem mensagens.')+(compilerInput.pgfplotsCompatAdjusted?' | LumaTex: compat=1.18 foi ajustado para 1.17 nesta compilação.':'');$('#compile-details').hidden=false;
+        $('#compile-log').textContent=(result.log||'Compilado sem mensagens.')+(compilerInput.pgfplotsCompatAdjusted?'\n\nLumaTex: o motor incluído oferece PGFPlots até compat=1.17; esta compilação usou 1.17 sem alterar o texto salvo.':'');$('#compile-details').hidden=false;
         $('#preview-page').textContent='PDF compilado';$('#preview-status').textContent='Compilação LaTeX concluída.';
         showToast('PDF compilado. Use “Baixar PDF” para salvar o arquivo.');
       }catch(error){const message=error?.message||'Erro ao iniciar o compilador LaTeX.';$('#compile-log').textContent=message;$('#compile-details').hidden=false;showLivePreview();$('#preview-status').textContent='Não foi possível concluir a compilação.';showToast(message);console.error(error);}
       finally{button.disabled=false;button.innerHTML=oldButton;}
     }
+    $('#import-project-btn').onclick=()=>$('#zip-import-input').click();
+    $('#zip-import-input').addEventListener('change',event=>importZipProject(event.target.files?.[0]));
     $('#download-pdf').onclick=downloadCompiledPdf;
     $('#open-pdf').onclick=()=>{if(compiledPdfUrl)window.open(compiledPdfUrl,'_blank','noopener');else showToast('Compile o documento para abrir o PDF.')};
     async function setFilter(f){
